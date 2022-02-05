@@ -51,10 +51,11 @@ function preload() {
 }
 
 function create() {
-    // Setup scoreboard
+    // Set up scoreboard
     scoreText = this.add.text(20, 0, 'SCORE: 0', { fontSize: '32px', fill: '#FFF' });
+    scoreText.setScrollFactor(0)
 
-    // Setup char
+    // Set up char
     char = this.physics.add.image(400, 300, 'chowder');
     char.setScale(.5)
     this.cameras.main.startFollow(char);
@@ -62,7 +63,7 @@ function create() {
     // Register keys
     keys = this.input.keyboard.addKeys("W,A,S,D,R");
 
-    // Setup knives
+    // Set up knives
     this.time.addEvent({
         delay: 600,
         callback: function () {
@@ -81,11 +82,12 @@ function create() {
         callbackScope: this,
         loop: true,
     });
+
     // Set initial knife speed
     knifeSpeedX = KNIFE_SPEED
     knifeSpeedY = 0
 
-    // Setup enemies
+    // Set up enemies
     this.time.addEvent({
         delay: 400,
         callback: function () {
@@ -118,7 +120,9 @@ function update() {
 
     if (gameState == GameState.DONE) {
         const deadText = this.add.text(100, 100, 'U DIED BRO. HAPPENS.', { fontSize: '32px', fill: '#FFF' });
+        deadText.setScrollFactor(0)
         const thumb = this.physics.add.image(500, 500, 'thumb')
+        thumb.setScrollFactor(0)
         thumb.setScale(5)
         reset()
         return
