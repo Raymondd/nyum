@@ -1,12 +1,14 @@
-import {EnemySpawner} from './js/enemy.js';
+import { EnemyModel } from './js/enemymodel.js';
 
 const WIDTH = 1000
 const HEIGHT = 1000
 const MOVE_SPEED = 250
 const KNIFE_SPEED = 500
 const CAMERA_LERP = .15
+var game
 
-const game = new Phaser.Game({
+
+game = new Phaser.Game({
     type: Phaser.AUTO,
     backgroundColor: '#196F3D',
     physics: {
@@ -30,25 +32,27 @@ const GameState = {
 };
 
 
-var char;
+var char
 var knives = []
 var knife_count = 10
 var score = 0
-var gameState = GameState.SETUP;
-var keys;
-var knifeSpeedX;
-var knifeSpeedY;
-var scoreText;
-var enemySpawner
+var gameState = GameState.SETUP
+var keys
+var knifeSpeedX
+var knifeSpeedY
+var scoreText
+var enemyModel
+var grass
 
 function preload() {
-    enemySpawner = new EnemySpawner(this);
-    enemySpawner.preload(this.load);
-    
+    enemyModel = new EnemyModel(this);
+    enemyModel.preload(this.load);
+
     this.load.image('knife', 'assets/ball.png');
     this.load.image('chowder', 'assets/henry.png');
     this.load.image('thumb', 'assets/thumbs_down.png');
     this.load.audio('roses', 'assets/roses.mp3');
+    this.load.image('grass', 'assets/grass.png');
 }
 
 function create() {
@@ -57,7 +61,7 @@ function create() {
     scoreText.setScrollFactor(0)
 
     // Set up char
-    char = this.physics.add.image(400, 300, 'chowder');
+    char = this.physics.add.image(0, 0, 'chowder');
     char.setScale(.5)
     this.cameras.main.startFollow(char, true, CAMERA_LERP, CAMERA_LERP);
 
@@ -77,7 +81,7 @@ function create() {
             if (knives.length > 5) knives.shift().destroy()
 
 
-            for (const e of enemySpawner.active)
+            for (const e of enemyModel.active)
                 this.physics.add.overlap(e, knife, knifeHitsBall, null, this);
         },
         callbackScope: this,
@@ -90,18 +94,15 @@ function create() {
 
     // Set up enemies
     this.time.addEvent({
-        delay: 400,
+        delay: 200,
         callback: function () {
+            const spawn = enemyModel.spawn(char)
 
-            var isKelley = Math.random() < 0.95
-
-            const spawn =  enemySpawner.spawn(char)
-
-            enemySpawner.active.add(spawn)
+            enemyModel.active.add(spawn)
 
             for (const knife of knives)
                 this.physics.add.overlap(spawn, knife, knifeHitsBall, null, this)
-    
+
             this.physics.add.overlap(spawn, char, function () {
                 char.destroy()
                 gameState = GameState.DONE
@@ -157,21 +158,30 @@ function update() {
             knifeSpeedY = 0
     }
 
-    enemySpawner.updateAll(char)
+    enemyModel.updateAll(char)
 
     for (const k of knives) {
         k.angle += 20;
     }
 }
 
+function renderBackground(char, game) {
+     
+    var tile1 = game.physics.add.image(-250, -250, 'grass');
+    var tile2 = game.physics.add.image(250, -250, 'grass');
+    var tile3 = game.physics.add.image(-250, 250,'grass');
+    var tile4 = game.physics.add.image(250, 250,'grass');
+    console.log(tile1.x)
+}
+
 function knifeHitsBall(e, knife) {
-    enemySpawner.despawn(e)
+    enemyModel.despawn(e)
     score += 1
     scoreText.setText("SCORE: " + score)
 }
 
 function reset() {
     knives.forEach(i => i.destroy())
-    enemySpawner.despawnAll()
+    enemyModel.despawnAll()
     char.destroy()
 }

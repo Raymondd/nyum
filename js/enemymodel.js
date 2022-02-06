@@ -1,7 +1,7 @@
-export { EnemySpawner, Roffles, Enemy }
+export { EnemyModel }
 
 
-class EnemySpawner {
+class EnemyModel {
     constructor(game) {
         this.game = game
         this.active = new Set()
