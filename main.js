@@ -120,7 +120,7 @@ function create() {
 
 function update() {
     if (keys.R.isDown) {
-        // implement reset i guess? 
+        this.scene.restart()
     }
 
     if (gameState == GameState.DONE) {
