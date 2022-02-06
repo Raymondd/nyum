@@ -12,6 +12,8 @@ class EnemyModel {
         this.game.load.image('roffles', 'assets/roffles.png');
     }
 
+    create () {}
+
     spawn(char) {
         var roll = Math.random() * 100
         var spawn
