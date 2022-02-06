@@ -48,6 +48,7 @@ function preload() {
     this.load.image('knife', 'assets/ball.png');
     this.load.image('chowder', 'assets/henry.png');
     this.load.image('thumb', 'assets/thumbs_down.png');
+    this.load.audio('roses', 'assets/roses.mp3');
 }
 
 function create() {
@@ -110,6 +111,10 @@ function create() {
         loop: true,
     });
 
+    // Play music
+    var bgm = this.sound.add('roses', { loop: true, volume: .01 });
+    bgm.play();
+    
     gameState = GameState.RUNNING;
 }
 
