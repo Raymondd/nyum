@@ -4,7 +4,7 @@ const WIDTH = 1000
 const HEIGHT = 1000
 const MOVE_SPEED = 250
 const KNIFE_SPEED = 500
-
+const CAMERA_LERP = .15
 
 const game = new Phaser.Game({
     type: Phaser.AUTO,
@@ -58,7 +58,7 @@ function create() {
     // Set up char
     char = this.physics.add.image(400, 300, 'chowder');
     char.setScale(.5)
-    this.cameras.main.startFollow(char);
+    this.cameras.main.startFollow(char, true, CAMERA_LERP, CAMERA_LERP);
 
     // Register keys
     keys = this.input.keyboard.addKeys("W,A,S,D,R");
