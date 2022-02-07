@@ -33,7 +33,7 @@ class BackgroundModel {
             var tileY = y - y % IMAGE_WIDTH - (IMAGE_WIDTH * 2)
             for (const row in iterator) {
                 const tile = this.layer.create(tileX, tileY, 'grass')
-                tile.setDepth(-100)
+                tile.setDepth(-1)
                 this.tiles.add(tile)
                 tileY += IMAGE_WIDTH
             }

@@ -33,11 +33,11 @@ const GameState = {
 
 
 var knives = []
-var score = 0
 var gameState = GameState.SETUP
 var keys
 var knifeSpeedX
 var knifeSpeedY
+var score = 0
 var scoreText
 
 // Entity models
@@ -66,7 +66,12 @@ function create() {
 
     backgroundModel.create()
     charModel.create()
-    enemyModel.create()
+    enemyModel.create(charModel.sprite,
+        _ => gameState = GameState.DONE,
+        function () {
+            score += 1
+            scoreText.setText("SCORE: " + score)
+        })
 
     // Set up knives
     this.time.addEvent({
@@ -91,24 +96,6 @@ function create() {
     // Set initial knife speed
     knifeSpeedX = KNIFE_SPEED
     knifeSpeedY = 0
-
-    // Set up enemies
-    this.time.addEvent({
-        delay: 50,
-        callback: function () {
-            const spawn = enemyModel.spawn(charModel.sprite)
-
-            for (const knife of knives)
-                this.physics.add.overlap(spawn, knife, knifeHitsBall, null, this)
-
-            this.physics.add.overlap(spawn, charModel.sprite, function () {
-                charModel.sprite.destroy()
-                gameState = GameState.DONE
-            }, null, this)
-        },
-        callbackScope: this,
-        loop: true,
-    })
 
     // Play music
     var bgm = this.sound.add('roses', { loop: true, volume: .01 })
@@ -165,7 +152,5 @@ function update() {
 }
 
 function knifeHitsBall(e, knife) {
-    enemyModel.despawn(e)
-    score += 1
-    scoreText.setText("SCORE: " + score)
+    enemyModel.despawn(e, charModel.sprite)
 }
