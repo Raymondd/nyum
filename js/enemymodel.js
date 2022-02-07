@@ -61,8 +61,19 @@ class EnemyModel {
         }, null, this)
     }
 
-    updateAll(char) {
+    update(char) {
         this.active.forEach(e => e.update(char))
+
+        // Start cleaning up entities that are far away from the character
+        if (this.active.size > 100) {
+            for (let e of this.active) {
+                if (Math.hypot(e.sprite.x - this.char.x, e.sprite.y - this.char.y) > 2000) {
+                    this.despawn(e.sprite)
+                    console.log("entity cleaned up")
+                    return
+                } 
+            }
+        }
     }
 
     despawn(entity, char) {

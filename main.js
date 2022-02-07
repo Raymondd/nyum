@@ -143,7 +143,7 @@ function update() {
     }
 
     backgroundModel.update()
-    enemyModel.updateAll(charModel.sprite)
+    enemyModel.update(charModel.sprite)
     charModel.update()
 
     for (const k of knives) {
