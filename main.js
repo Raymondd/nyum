@@ -33,7 +33,6 @@ const GameState = {
 
 
 var knives = []
-var score = 0
 var gameState = GameState.SETUP
 var keys
 var knifeSpeedX
@@ -165,7 +164,6 @@ function update() {
 }
 
 function knifeHitsBall(e, knife) {
-    enemyModel.despawn(e)
-    score += 1
-    scoreText.setText("SCORE: " + score)
+    enemyModel.despawn(e, charModel.sprite)
+    scoreText.setText("SCORE: " + enemyModel.score)
 }

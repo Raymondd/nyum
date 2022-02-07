@@ -10,13 +10,16 @@ class EnemyModel {
     preload() {
         this.game.load.image('kelley', 'assets/kelley.png');
         this.game.load.image('roffles', 'assets/roffles.png');
+        this.game.load.image('redbull', 'assets/redbull.png');
     }
 
-    create () {}
+    create() { 
+        this.score = 0
+    }
 
     spawn(char) {
-        var roll = Math.random() * 100
-        var spawn
+        let roll = Math.random() * 100
+        let spawn
         if (roll < 20) {
             spawn = new Roffles(char, this.game)
         } else {
@@ -27,13 +30,28 @@ class EnemyModel {
         return spawn.sprite;
     }
 
+    spawnDrop(enemy, char) {
+        let sprite = this.game.physics.add.image(enemy.x, enemy.y, 'redbull')
+        sprite.setScale(1)
+
+        this.game.physics.add.overlap(sprite, char, function () {
+            if (sprite.active) {
+                sprite.destroy()
+                this.score += 1
+            }
+        }, null, this)
+    }
+
     updateAll(char) {
         this.active.forEach(e => e.update(char))
     }
 
-    despawn(entity) {
-        this.active.delete(entity)
-        entity.destroy()
+    despawn(entity, char) {
+        if (entity.active) {
+            this.active.delete(entity)
+            this.spawnDrop(entity, char)
+            entity.destroy()
+        }
     }
 
     despawnAll() {
