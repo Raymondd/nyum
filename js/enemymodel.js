@@ -61,18 +61,6 @@ class EnemyModel {
         }, null, this)
     }
 
-    spawnDrop(enemy, char) {
-        let sprite = this.game.physics.add.image(enemy.x, enemy.y, 'redbull')
-        sprite.setScale(1)
-
-        this.game.physics.add.overlap(sprite, char, function () {
-            if (sprite.active) {
-                sprite.destroy()
-                this.score += 1
-            }
-        }, null, this)
-    }
-
     updateAll(char) {
         this.active.forEach(e => e.update(char))
     }

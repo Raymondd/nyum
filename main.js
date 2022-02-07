@@ -68,7 +68,7 @@ function create() {
     charModel.create()
     enemyModel.create(charModel.sprite,
         _ => gameState = GameState.DONE,
-        function () {
+        function() {
             score += 1
             scoreText.setText("SCORE: " + score)
         })
