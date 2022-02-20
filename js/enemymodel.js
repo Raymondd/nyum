@@ -11,6 +11,11 @@ class EnemyModel {
         this.game.load.image('kelley', 'assets/kelley.png');
         this.game.load.image('roffles', 'assets/roffles.png');
         this.game.load.image('redbull', 'assets/redbull.png');
+
+        this.game.load.spritesheet('orc', 'assets/orc_run.png', {
+            frameWidth: 16,
+            frameHeight: 20
+        });
     }
 
     create(char, endGameCallBack, updateScoreCallback) {
@@ -19,15 +24,14 @@ class EnemyModel {
         this.endGameCallBack = endGameCallBack
         this.updateScoreCallback = updateScoreCallback
 
-        // Starts a roffles spawner at 500 ms intervals
-        this.startSpawner(500, _ => {
-            let spawn = new Roffles(char, this.game);
-            this.active.add(spawn)
-            return spawn.sprite
-        })
+        this.game.anims.create({
+            key: 'orc-walk',
+            frames: this.game.anims.generateFrameNumbers('orc'),
+            frameRate: 16,
+        });
 
         this.startSpawner(50, _ => {
-            let spawn = new Kelley(char, this.game);
+            let spawn = new Orc(char, this.game);
             this.active.add(spawn)
             return spawn.sprite
         })
@@ -36,10 +40,10 @@ class EnemyModel {
     startSpawner(delay, spawner) {
         this.game.time.addEvent({
             delay: delay,
-            callback: function () {
+            callback: function() {
                 let spawn = spawner()
 
-                this.game.physics.add.overlap(spawn, this.char, function () {
+                this.game.physics.add.overlap(spawn, this.char, function() {
                     this.char.destroy()
                     this.endGameCallBack()
                 }, null, this)
@@ -53,7 +57,7 @@ class EnemyModel {
         let sprite = this.game.physics.add.image(enemy.x, enemy.y, 'redbull')
         sprite.setScale(1)
 
-        this.game.physics.add.overlap(sprite, char, function () {
+        this.game.physics.add.overlap(sprite, char, function() {
             if (sprite.active) {
                 sprite.destroy()
                 this.updateScoreCallback()
@@ -71,7 +75,7 @@ class EnemyModel {
                     this.despawn(e.sprite)
                     console.log("entity cleaned up")
                     return
-                } 
+                }
             }
         }
     }
@@ -85,13 +89,13 @@ class EnemyModel {
     }
 
     despawnAll() {
-        this.active.forEach(function (e) { if (e.active) e.destroy() })
+        this.active.forEach(function(e) { if (e.active) e.destroy() })
         this.active.clear()
     }
 }
 
 class Enemy {
-    constructor(name, speed, spin, scale, char, game) {
+    constructor(name, walk, speed, scale, char, game) {
         let dist = 1500
         let x = 0
         let y = 0
@@ -104,38 +108,55 @@ class Enemy {
             y = point - dist
         } else if (point < dist * 3) {
             y = dist
-            x = point - dist*2
+            x = point - dist * 2
         } else {
-            y = point - dist*3
+            y = point - dist * 3
         }
 
         var spawnX = char.x + x - dist / 2
         var spawnY = char.y + y - dist / 2
         this.speed = speed
-        this.spin = spin
+        this.spin = 0
+        this.walk = walk
+        this.game = game
+        this.sprite = this.game.physics.add.sprite(spawnX, spawnY, name)
 
-        this.sprite = game.physics.add.image(spawnX, spawnY, name)
         this.sprite.setScale(scale)
     }
 
     update(char) {
         if (this.sprite.active) {
-            this.sprite.setVelocityX(this.sprite.x < char.x ? this.speed : -this.speed)
-            this.sprite.setVelocityY(this.sprite.y < char.y ? this.speed : -this.speed)
+            let tol = 100
+            if (this.sprite.x + tol < char.x) {
+                // Go right
+                this.sprite.setVelocityX(this.speed)
+                this.sprite.flipX = false
+            } else if (this.sprite.x - tol > char.x) {
+                // Go left
+                this.sprite.setVelocityX(-this.speed)
+                this.sprite.flipX = true
+            } else {
+                this.sprite.setVelocityX(0)
+            }
+
+            if (this.sprite.y + tol < char.y) {
+                // Go down
+                this.sprite.setVelocityY(this.speed)
+            } else if (this.sprite.y - tol > char.y) {
+                // Go up
+                this.sprite.setVelocityY(-this.speed)
+            } else {
+                this.sprite.setVelocityY(0)
+            }
+
             this.sprite.angle += this.spin;
+            this.sprite.play(this.walk, true)
         }
     }
 }
 
-class Roffles extends Enemy {
+class Orc extends Enemy {
     constructor(char, game) {
-        super('roffles', 100, 5, 1, char, game);
-    }
-}
-
-
-class Kelley extends Enemy {
-    constructor(char, game) {
-        super('kelley', 50, 5, .2, char, game);
+        super('orc', 'orc-walk', 50, 2, char, game);
     }
 }
