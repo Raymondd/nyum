@@ -1,0 +1,13 @@
+#game {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+}
+
+canvas {
+    margin: auto;
+}
+
+body {
+    background-color: rgb(45, 112, 56);
+}

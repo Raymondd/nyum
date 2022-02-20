@@ -5,10 +5,8 @@ import { BackgroundModel } from './js/backgroundmodel.js'
 const WIDTH = 1000
 const HEIGHT = 1000
 const KNIFE_SPEED = 500
-var game
 
-
-game = new Phaser.Game({
+let game = new Phaser.Game({
     type: Phaser.AUTO,
     backgroundColor: '#196F3D',
     physics: {
@@ -21,8 +19,9 @@ game = new Phaser.Game({
     },
     scale: {
         width: WIDTH,
-        height: HEIGHT
-    }
+        height: HEIGHT,
+        parent: 'game',
+    },
 })
 
 const GameState = {
@@ -76,7 +75,7 @@ function create() {
     // Set up knives
     this.time.addEvent({
         delay: 600,
-        callback: function () {
+        callback: function() {
             var knife = this.physics.add.image(charModel.sprite.x, charModel.sprite.y, 'knife')
             knife.setScale(.02)
             knife.setVelocityX(knifeSpeedX)
