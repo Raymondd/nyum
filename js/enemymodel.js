@@ -27,6 +27,7 @@ class EnemyModel {
 
         // Setup collisions groups
         this.enemyGroup = this.game.physics.add.group()
+        this.game.physics.add.collider(this.enemyGroup, this.enemyGroup);
         this.game.physics.add.overlap(this.enemyGroup, this.char, function() {
             this.char.destroy()
             this.endGameCallBack()
@@ -43,7 +44,7 @@ class EnemyModel {
             frameRate: 16,
         });
 
-        this.startSpawner(50, _ => {
+        this.startSpawner(200, _ => {
             let spawn = new Orc(char, this.enemyGroup, this.game);
             this.active.add(spawn)
             return spawn.sprite
