@@ -39,6 +39,7 @@ class AbilityModel {
         this.abilityList.push(ability)
         if (this.abilityList.length > 5) this.abilityList.shift().destroy()
     }
+    x
 
     update() {
         if (this.game.keys.A.isDown) {

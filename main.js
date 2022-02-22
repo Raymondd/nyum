@@ -17,8 +17,6 @@ class MainScene extends Phaser.Scene {
         super();
         this.gameState = GameState.SETUP
         this.keys
-        this.knifeSpeedX
-        this.knifeSpeedY
         this.score = 0
         this.scoreText
 
