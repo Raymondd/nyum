@@ -6,150 +6,154 @@ const WIDTH = 1000
 const HEIGHT = 1000
 const KNIFE_SPEED = 500
 
-let game = new Phaser.Game({
-    type: Phaser.AUTO,
-    backgroundColor: '#196F3D',
-    physics: {
-        default: 'arcade',
-    },
-    scene: {
-        preload: preload,
-        create: create,
-        update: update
-    },
-    scale: {
-        width: WIDTH,
-        height: HEIGHT,
-        parent: 'game',
-    },
-})
-
 const GameState = {
     SETUP: 'SETUP',
     RUNNING: 'RUNNING',
     DONE: 'DONE',
 }
 
+class MainScene extends Phaser.Scene {
+    constructor() {
+        super();
+        this.knives = []
+        this.gameState = GameState.SETUP
+        this.keys
+        this.knifeSpeedX
+        this.knifeSpeedY
+        this.score = 0
+        this.scoreText
 
-var knives = []
-var gameState = GameState.SETUP
-var keys
-var knifeSpeedX
-var knifeSpeedY
-var score = 0
-var scoreText
+        // Entity models
+        this.enemyModel
+        this.charModel
+        this.backgroundModel;
+    }
 
-// Entity models
-var enemyModel
-var charModel
-var backgroundModel;
+    preload() {
+        this.enemyModel = new EnemyModel(this)
+        this.charModel = new CharModel(this)
+        this.backgroundModel = new BackgroundModel(this)
 
-function preload() {
-    enemyModel = new EnemyModel(this)
-    charModel = new CharModel(this)
-    backgroundModel = new BackgroundModel(this)
+        this.backgroundModel.preload()
+        this.enemyModel.preload()
+        this.charModel.preload()
 
-    backgroundModel.preload()
-    enemyModel.preload()
-    charModel.preload()
+        this.load.image('knife', 'assets/ball.png')
+        this.load.image('thumb', 'assets/thumbs_down.png')
+        this.load.audio('roses', 'assets/roses.mp3')
+    }
 
-    this.load.image('knife', 'assets/ball.png')
-    this.load.image('thumb', 'assets/thumbs_down.png')
-    this.load.audio('roses', 'assets/roses.mp3')
-}
+    create() {
+        // Set up scoreboard
+        this.scoreText = this.add.text(20, 0, 'SCORE: 0', { fontSize: '32px', fill: '#FFF' })
+        this.scoreText.setScrollFactor(0)
 
-function create() {
-    // Set up scoreboard
-    scoreText = this.add.text(20, 0, 'SCORE: 0', { fontSize: '32px', fill: '#FFF' })
-    scoreText.setScrollFactor(0)
+        this.backgroundModel.create()
+        this.charModel.create()
 
-    backgroundModel.create()
-    charModel.create()
-    enemyModel.create(charModel.sprite,
-        _ => gameState = GameState.DONE,
-        function() {
-            score += 1
-            scoreText.setText("SCORE: " + score)
+        this.enemyModel.create(this.charModel.sprite,
+            _ => this.gameState = GameState.DONE,
+            _ => this.updateScore(this.score++)
+        )
+
+        // Set up knives
+        this.time.addEvent({
+            delay: 600,
+            callback: function() {
+                var knife = this.physics.add.image(this.charModel.sprite.x, this.charModel.sprite.y, 'knife')
+                knife.setScale(.02)
+                knife.setVelocityX(this.knifeSpeedX)
+                knife.setVelocityY(this.knifeSpeedY)
+
+                this.knives.push(knife)
+                if (this.knives.length > 5) this.knives.shift().destroy()
+
+                for (const e of this.enemyModel.active) {
+                    this.physics.add.overlap(e.sprite, knife, this.knifeHitsBall, null, this)
+                }
+            },
+            callbackScope: this,
+            loop: true,
         })
 
-    // Set up knives
-    this.time.addEvent({
-        delay: 600,
-        callback: function() {
-            var knife = this.physics.add.image(charModel.sprite.x, charModel.sprite.y, 'knife')
-            knife.setScale(.02)
-            knife.setVelocityX(knifeSpeedX)
-            knife.setVelocityY(knifeSpeedY)
+        // Set initial knife speed
+        this.knifeSpeedX = KNIFE_SPEED
+        this.knifeSpeedY = 0
 
-            knives.push(knife)
-            if (knives.length > 5) knives.shift().destroy()
+        // Play music
+        var bgm = this.sound.add('roses', { loop: true, volume: .01 })
+        bgm.play()
 
-            for (const e of enemyModel.active) {
-                this.physics.add.overlap(e.sprite, knife, knifeHitsBall, null, this)
-            }
-        },
-        callbackScope: this,
-        loop: true,
-    })
+        // Set up keys
+        this.keys = this.input.keyboard.addKeys("W,A,S,D,R")
 
-    // Set initial knife speed
-    knifeSpeedX = KNIFE_SPEED
-    knifeSpeedY = 0
-
-    // Play music
-    var bgm = this.sound.add('roses', { loop: true, volume: .01 })
-    bgm.play()
-
-    // Set up keys
-    keys = this.input.keyboard.addKeys("W,A,S,D,R")
-
-    gameState = GameState.RUNNING
-}
-
-function update() {
-    if (keys.R.isDown) {
-        this.scene.restart()
+        this.gameState = GameState.RUNNING
     }
 
-    if (gameState == GameState.DONE) {
-        const deadText = this.add.text(100, 100, 'U DIED BRO. HAPPENS.', { fontSize: '32px', fill: '#FFF' })
-        deadText.setScrollFactor(0)
-        const thumb = this.physics.add.image(500, 500, 'thumb')
-        thumb.setScrollFactor(0)
-        thumb.setScale(5)
-        knives.forEach(i => i.destroy())
-        enemyModel.despawnAll()
-        charModel.despawn();
-        return
+    update() {
+        if (this.keys.R.isDown) {
+            this.scene.restart()
+        }
+
+        if (this.gameState == GameState.DONE) {
+            const deadText = this.add.text(100, 100, 'U DIED BRO. HAPPENS.', { fontSize: '32px', fill: '#FFF' })
+            deadText.setScrollFactor(0)
+            const thumb = this.physics.add.image(500, 500, 'thumb')
+            thumb.setScrollFactor(0)
+            thumb.setScale(5)
+            this.knives.forEach(i => i.destroy())
+            this.enemyModel.despawnAll()
+            this.charModel.despawn();
+            return
+        }
+
+        if (this.keys.A.isDown) {
+            this.knifeSpeedX = -KNIFE_SPEED
+        } else if (this.keys.D.isDown) {
+            this.knifeSpeedX = KNIFE_SPEED
+        } else {
+            if (this.keys.W.isDown || this.keys.S.isDown)
+                this.knifeSpeedX = 0
+        }
+
+        if (this.keys.W.isDown) {
+            this.knifeSpeedY = -KNIFE_SPEED
+        } else if (this.keys.S.isDown) {
+            this.knifeSpeedY = KNIFE_SPEED
+        } else {
+            if (this.keys.A.isDown || this.keys.D.isDown)
+                this.knifeSpeedY = 0
+        }
+
+        this.backgroundModel.update()
+        this.enemyModel.update(this.charModel.sprite)
+        this.charModel.update()
+
+        for (const k of this.knives) {
+            k.angle += 20
+        }
     }
 
-    if (keys.A.isDown) {
-        knifeSpeedX = -KNIFE_SPEED
-    } else if (keys.D.isDown) {
-        knifeSpeedX = KNIFE_SPEED
-    } else {
-        if (keys.W.isDown || keys.S.isDown)
-            knifeSpeedX = 0
+    knifeHitsBall(e, knife) {
+        this.enemyModel.despawn(e, this.charModel.sprite)
     }
 
-    if (keys.W.isDown) {
-        knifeSpeedY = -KNIFE_SPEED
-    } else if (keys.S.isDown) {
-        knifeSpeedY = KNIFE_SPEED
-    } else {
-        if (keys.A.isDown || keys.D.isDown)
-            knifeSpeedY = 0
-    }
-
-    backgroundModel.update()
-    enemyModel.update(charModel.sprite)
-    charModel.update()
-
-    for (const k of knives) {
-        k.angle += 20
+    updateScore(score) {
+        this.scoreText.setText("SCORE: " + this.score)
     }
 }
 
-function knifeHitsBall(e, knife) {
-    enemyModel.despawn(e, charModel.sprite)
-}
+const game = new Phaser.Game({
+    type: Phaser.AUTO,
+    backgroundColor: '#196F3D',
+    physics: {
+        default: 'arcade',
+    },
+    scene: [MainScene],
+    scale: {
+        width: WIDTH,
+        height: HEIGHT,
+        parent: 'game',
+    },
+    pixelArt: true,
+})
