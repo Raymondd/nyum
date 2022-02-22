@@ -7,7 +7,8 @@ class EnemyModel {
         this.active = new Set()
     }
 
-    preload() {
+    preload(abilityModel) {
+        this.abilityModel = abilityModel
         this.game.load.image('kelley', 'assets/kelley.png');
         this.game.load.image('roffles', 'assets/roffles.png');
         this.game.load.image('redbull', 'assets/redbull.png');
@@ -24,6 +25,18 @@ class EnemyModel {
         this.endGameCallBack = endGameCallBack
         this.updateScoreCallback = updateScoreCallback
 
+        // Setup collisions groups
+        this.enemyGroup = this.game.physics.add.group()
+        this.game.physics.add.overlap(this.enemyGroup, this.char, function() {
+            this.char.destroy()
+            this.endGameCallBack()
+        }, null, this)
+
+        this.game.physics.add.overlap(this.enemyGroup, this.abilityModel.group, function(enemy, ability) {
+            this.despawn(enemy, this.char)
+            ability.destroy()
+        }, null, this)
+
         this.game.anims.create({
             key: 'orc-walk',
             frames: this.game.anims.generateFrameNumbers('orc'),
@@ -31,7 +44,7 @@ class EnemyModel {
         });
 
         this.startSpawner(50, _ => {
-            let spawn = new Orc(char, this.game);
+            let spawn = new Orc(char, this.enemyGroup, this.game);
             this.active.add(spawn)
             return spawn.sprite
         })
@@ -40,14 +53,7 @@ class EnemyModel {
     startSpawner(delay, spawner) {
         this.game.time.addEvent({
             delay: delay,
-            callback: function() {
-                let spawn = spawner()
-
-                this.game.physics.add.overlap(spawn, this.char, function() {
-                    this.char.destroy()
-                    this.endGameCallBack()
-                }, null, this)
-            },
+            callback: _ => spawner(),
             callbackScope: this,
             loop: true,
         })
@@ -73,8 +79,6 @@ class EnemyModel {
             for (let e of this.active) {
                 if (Math.hypot(e.sprite.x - this.char.x, e.sprite.y - this.char.y) > 2000) {
                     this.despawn(e.sprite)
-                    console.log("entity cleaned up")
-                    return
                 }
             }
         }
@@ -87,15 +91,10 @@ class EnemyModel {
             entity.destroy()
         }
     }
-
-    despawnAll() {
-        this.active.forEach(function(e) { if (e.active) e.destroy() })
-        this.active.clear()
-    }
 }
 
 class Enemy {
-    constructor(name, walk, speed, scale, char, game) {
+    constructor(name, walk, speed, scale, char, enemyGroup, game) {
         let dist = 1500
         let x = 0
         let y = 0
@@ -122,6 +121,7 @@ class Enemy {
         this.sprite = this.game.physics.add.sprite(spawnX, spawnY, name)
 
         this.sprite.setScale(scale)
+        enemyGroup.add(this.sprite)
     }
 
     update(char) {
@@ -156,7 +156,7 @@ class Enemy {
 }
 
 class Orc extends Enemy {
-    constructor(char, game) {
-        super('orc', 'orc-walk', 50, 2, char, game);
+    constructor(char, enemyGroup, game) {
+        super('orc', 'orc-walk', 50, 2, char, enemyGroup, game);
     }
 }
