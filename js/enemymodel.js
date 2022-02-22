@@ -126,7 +126,7 @@ class Enemy {
 
     update(char) {
         if (this.sprite.active) {
-            let tol = 100
+            let tol = 0
             if (this.sprite.x + tol < char.x) {
                 // Go right
                 this.sprite.setVelocityX(this.speed)
