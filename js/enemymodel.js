@@ -127,14 +127,15 @@ class Enemy {
 
     update(char) {
         if (this.sprite.active) {
-            let tol = 0
+            const speed = this.speed + Math.random() * 20
+            const tol = 0
             if (this.sprite.x + tol < char.x) {
                 // Go right
-                this.sprite.setVelocityX(this.speed)
+                this.sprite.setVelocityX(speed)
                 this.sprite.flipX = false
             } else if (this.sprite.x - tol > char.x) {
                 // Go left
-                this.sprite.setVelocityX(-this.speed)
+                this.sprite.setVelocityX(-speed)
                 this.sprite.flipX = true
             } else {
                 this.sprite.setVelocityX(0)
@@ -142,10 +143,10 @@ class Enemy {
 
             if (this.sprite.y + tol < char.y) {
                 // Go down
-                this.sprite.setVelocityY(this.speed)
+                this.sprite.setVelocityY(speed)
             } else if (this.sprite.y - tol > char.y) {
                 // Go up
-                this.sprite.setVelocityY(-this.speed)
+                this.sprite.setVelocityY(-speed)
             } else {
                 this.sprite.setVelocityY(0)
             }
