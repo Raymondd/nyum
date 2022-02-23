@@ -7,8 +7,9 @@ class EnemyModel {
         this.active = new Set()
     }
 
-    preload(abilityModel) {
+    preload(abilityModel, charModel) {
         this.abilityModel = abilityModel
+        this.charModel = charModel
         this.game.load.image('kelley', 'assets/kelley.png');
         this.game.load.image('roffles', 'assets/roffles.png');
         this.game.load.image('redbull', 'assets/redbull.png');
@@ -19,18 +20,16 @@ class EnemyModel {
         });
     }
 
-    create(char, endGameCallBack, updateScoreCallback) {
+    create(char, updateScoreCallback) {
         this.score = 0
         this.char = char
-        this.endGameCallBack = endGameCallBack
         this.updateScoreCallback = updateScoreCallback
 
         // Setup collisions groups
         this.enemyGroup = this.game.physics.add.group()
         this.game.physics.add.collider(this.enemyGroup, this.enemyGroup);
         this.game.physics.add.overlap(this.enemyGroup, this.char, function() {
-            this.char.destroy()
-            this.endGameCallBack()
+            this.charModel.removeHealth(5)
         }, null, this)
 
         this.game.physics.add.overlap(this.enemyGroup, this.abilityModel.group, function(enemy, ability) {

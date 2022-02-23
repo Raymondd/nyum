@@ -34,7 +34,7 @@ class MainScene extends Phaser.Scene {
         this.abilityModel = new AbilityModel(this)
 
         this.backgroundModel.preload()
-        this.enemyModel.preload(this.abilityModel)
+        this.enemyModel.preload(this.abilityModel, this.charModel)
         this.charModel.preload()
         this.abilityModel.preload(this.charModel)
 
@@ -48,10 +48,9 @@ class MainScene extends Phaser.Scene {
         this.scoreText.setScrollFactor(0)
 
         this.backgroundModel.create()
-        this.charModel.create()
+        this.charModel.create(_ => this.gameState = GameState.DONE)
         this.enemyModel.create(
             this.charModel.sprite,
-            _ => this.gameState = GameState.DONE,
             _ => this.updateScore(this.score++)
         )
         this.abilityModel.create(this.enemyModel.enemyGroup)
