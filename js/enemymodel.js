@@ -1,7 +1,7 @@
-export { EnemyModel }
+import { Ogre, Orc } from "./enemy.js"
 
 
-class EnemyModel {
+export class EnemyModel {
     constructor(game) {
         this.game = game
         this.active = new Set()
@@ -18,6 +18,10 @@ class EnemyModel {
             frameWidth: 16,
             frameHeight: 20
         });
+        this.game.load.spritesheet('ogre', 'assets/ogre_run.png', {
+            frameWidth: 32,
+            frameHeight: 32
+        });
     }
 
     create(char, updateScoreCallback) {
@@ -33,7 +37,7 @@ class EnemyModel {
         }, null, this)
 
         this.game.physics.add.overlap(this.enemyGroup, this.abilityModel.group, function(enemy, ability) {
-            this.despawn(enemy, this.char)
+            this.hitEnemy(enemy, this.char)
             ability.destroy()
         }, null, this)
 
@@ -43,10 +47,20 @@ class EnemyModel {
             frameRate: 16,
         });
 
+        this.game.anims.create({
+            key: 'ogre-walk',
+            frames: this.game.anims.generateFrameNumbers('ogre'),
+            frameRate: 16,
+        });
+
         this.startSpawner(200, _ => {
-            let spawn = new Orc(char, this.enemyGroup, this.game);
+            let spawn = new Orc(char, this.enemyGroup, this.game).spawn();
             this.active.add(spawn)
-            return spawn.sprite
+        })
+
+        this.startSpawner(2000, _ => {
+            const spawn = new Ogre(char, this.enemyGroup, this.game).setHealth(50).spawn();
+            this.active.add(spawn)
         })
     }
 
@@ -91,73 +105,16 @@ class EnemyModel {
             entity.destroy()
         }
     }
-}
 
-class Enemy {
-    constructor(name, walk, speed, scale, char, enemyGroup, game) {
-        let dist = 1500
-        let x = 0
-        let y = 0
-        let point = Math.random() * (dist * 4)
+    hitEnemy(enemy, char) {
+        if (enemy.active) {
+            this.active.delete(enemy)
+            enemy.removeHealth(10)
 
-        if (point < dist) {
-            x = point
-        } else if (point < dist * 2) {
-            x = dist
-            y = point - dist
-        } else if (point < dist * 3) {
-            y = dist
-            x = point - dist * 2
-        } else {
-            y = point - dist * 3
-        }
-
-        var spawnX = char.x + x - dist / 2
-        var spawnY = char.y + y - dist / 2
-        this.speed = speed
-        this.spin = 0
-        this.walk = walk
-        this.game = game
-        this.sprite = this.game.physics.add.sprite(spawnX, spawnY, name)
-
-        this.sprite.setScale(scale)
-        enemyGroup.add(this.sprite)
-    }
-
-    update(char) {
-        if (this.sprite.active) {
-            const speed = this.speed + Math.random() * 20
-            const tol = 0
-            if (this.sprite.x + tol < char.x) {
-                // Go right
-                this.sprite.setVelocityX(speed)
-                this.sprite.flipX = false
-            } else if (this.sprite.x - tol > char.x) {
-                // Go left
-                this.sprite.setVelocityX(-speed)
-                this.sprite.flipX = true
-            } else {
-                this.sprite.setVelocityX(0)
+            // Spawn a drop if the enemy died
+            if (!enemy.active) {
+                this.spawnDrop(enemy, char)
             }
-
-            if (this.sprite.y + tol < char.y) {
-                // Go down
-                this.sprite.setVelocityY(speed)
-            } else if (this.sprite.y - tol > char.y) {
-                // Go up
-                this.sprite.setVelocityY(-speed)
-            } else {
-                this.sprite.setVelocityY(0)
-            }
-
-            this.sprite.angle += this.spin;
-            this.sprite.play(this.walk, true)
         }
-    }
-}
-
-class Orc extends Enemy {
-    constructor(char, enemyGroup, game) {
-        super('orc', 'orc-walk', 50, 2, char, enemyGroup, game);
     }
 }
