@@ -30,7 +30,7 @@ class CharModel {
         // Create main sprite
         this.sprite = this.game.physics.add.sprite(0, 0, 'wizard')
         this.sprite.smoothed = false
-        this.sprite.setScale(2)
+        this.sprite.setScale(4)
 
         this.game.cameras.main.startFollow(this.sprite, true, CAMERA_LERP, CAMERA_LERP)
 
@@ -63,7 +63,7 @@ class CharModel {
         }
 
         this.healthBar.x = this.sprite.x
-        this.healthBar.y = this.sprite.y + this.sprite.height + 10
+        this.healthBar.y = this.sprite.y + this.sprite.displayHeight / 2 + 10
         this.healthBar.width = this.health
     }
 

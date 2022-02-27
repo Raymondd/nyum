@@ -1,4 +1,4 @@
-const HEALTH_BAR_SIZE = 50
+import { HealthBar } from "./healthbar.js"
 
 class Enemy {
     constructor(name, walk, speed, scale, char, enemyGroup, game) {
@@ -11,7 +11,6 @@ class Enemy {
         this.scale = scale
         this.char = char
         this.health = 1
-        this.cooldown = false
     }
 
     setHealth(health) {
@@ -46,30 +45,18 @@ class Enemy {
         this.enemyGroup.add(this.sprite)
         this.sprite.removeHealth = this.removeHealth()
 
-        this.healthBar = this.game.add.rectangle(0, 0, HEALTH_BAR_SIZE, HEALTH_BAR_SIZE / 7, 0xA3255A)
-        if (this.health == 1) {
-            this.healthBar.visible = false
-        }
+        this.healthBar = new HealthBar(this.game, this.health)
 
         return this
     }
 
     removeHealth() {
-        var _this = this;
+        var _this = this
         return function(minusHealth) {
-            if (!_this.cooldown) {
-                _this.cooldown = true
-                _this.health = Math.max(_this.health - minusHealth, 0);
-                _this.game.time.addEvent({
-                    delay: 100,
-                    callback: _ => _this.cooldown = false,
-                    callbackScope: _this,
-                })
-            }
+            _this.healthBar.removeHealth(minusHealth)
 
-            if (_this.health == 0) {
+            if (_this.healthBar.health == 0) {
                 _this.sprite.destroy()
-                _this.healthBar.destroy()
             }
         }
     }
@@ -103,11 +90,7 @@ class Enemy {
             this.sprite.angle += this.spin;
             this.sprite.play(this.walk, true)
 
-            if (this.healthBar !== undefined) {
-                this.healthBar.x = this.sprite.x
-                this.healthBar.y = this.sprite.y + this.sprite.displayHeight / 2 + 10
-                this.healthBar.width = this.health
-            }
+            this.healthBar.update(this.sprite)
         }
     }
 
@@ -115,12 +98,11 @@ class Enemy {
         this.sprite.destroy()
         this.healthBar.destroy()
     }
-
 }
 
 export class Orc extends Enemy {
     constructor(char, enemyGroup, game) {
-        super('orc', 'orc-walk', 50, 2, char, enemyGroup, game, 1);
+        super('orc', 'orc-walk', 50, 3, char, enemyGroup, game, 1);
     }
 }
 
