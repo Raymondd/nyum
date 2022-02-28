@@ -75,7 +75,7 @@ export class EnemyModel {
 
     spawnDrop(enemy, char) {
         let sprite = this.game.physics.add.image(enemy.x, enemy.y, 'redbull')
-        sprite.setScale(1)
+        sprite.setScale(.2)
 
         this.game.physics.add.overlap(sprite, char, function() {
             if (sprite.active) {

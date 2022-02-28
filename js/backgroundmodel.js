@@ -1,45 +1,27 @@
-export { BackgroundModel }
-
-const WIDTH = 1000
-const IMAGE_WIDTH = 500
-
-class BackgroundModel {
+export class BackgroundModel {
     constructor(game) {
         this.game = game
-        this.tiles = new Set()
     }
 
     preload() {
-        this.game.load.image('grass', 'assets/grass.png')
+        this.game.load.image('tiles1', 'assets/dungeon_tiles.png')
     }
 
     create() {
-        this.layer = this.game.add.group()
+        this.pathSize = 100
+        this.tileSize = 16
+            // displays ALL tiles from the tilesheet
+            //var level = Array.from({ length: 32 }, (v1, k1) => [...Array.from({ length: 32 }, (v2, k2) => k2 + (32 * k1))])
+        var level = Array.from({ length: this.pathSize }, (v1, k1) => [...Array.from({ length: this.pathSize }, (v2, k2) => 129)])
+        console.log(level)
+
+        var map = this.game.make.tilemap({ data: level });
+        var tileset = map.addTilesetImage('tiles1', null, 16, 16)
+        const center = -(this.pathSize * this.tileSize / 2)
+        var layer = map.createLayer(0, tileset, center, center);
     }
 
-    update() {
-        // Tiles the background to follow camera movement
-        const x = this.game.cameras.main.midPoint.x;
-        const y = this.game.cameras.main.midPoint.y;
-
-        // TODO: recycle tiles to improve perf
-        this.tiles.forEach(t => t.destroy())
-        this.tiles.clear()
-
-        const iterator = [...Array(5)];
-
-        var tileX = x - x % IMAGE_WIDTH - (IMAGE_WIDTH * 2)
-        for (const column in iterator) {
-            var tileY = y - y % IMAGE_WIDTH - (IMAGE_WIDTH * 2)
-            for (const row in iterator) {
-                const tile = this.layer.create(tileX, tileY, 'grass')
-                tile.setDepth(-1)
-                this.tiles.add(tile)
-                tileY += IMAGE_WIDTH
-            }
-            tileX += IMAGE_WIDTH
-        }
-    }
+    update() {}
 
     destory() {
         // Keep the pretty tiles around?

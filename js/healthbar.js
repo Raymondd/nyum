@@ -1,14 +1,12 @@
-const HEALTH_BAR_SIZE = 50
-
 export class HealthBar {
     constructor(game, maxHealth) {
         this.game = game
         this.visible = !(maxHealth <= 1)
-        this.scale = maxHealth / HEALTH_BAR_SIZE
+        this.maxHealth = maxHealth
         this.health = maxHealth
 
-        this.healthBarBackground = this.game.add.rectangle(0, 0, HEALTH_BAR_SIZE, HEALTH_BAR_SIZE / 7, 0x000000)
-        this.healthBar = this.game.add.rectangle(0, 0, HEALTH_BAR_SIZE, HEALTH_BAR_SIZE / 7, 0xA3255A)
+        this.healthBarBackground = this.game.add.rectangle(0, 0, 0, 0, 0x000000)
+        this.healthBar = this.game.add.rectangle(0, 0, 0, 0, 0xA3255A)
         this.healthBar.visible = this.visible
         this.healthBarBackground.visible = this.visible
 
@@ -16,14 +14,21 @@ export class HealthBar {
     }
 
     update(char) {
-        const healthX = char.x
-        const healthY = char.y + char.displayHeight / 2 + 10
+        const healthX = char.x - (char.displayWidth / 2)
+        const healthY = char.y + (char.displayHeight / 2) + 5
+        const width = char.displayWidth
+        const height = char.displayHeight
 
         this.healthBar.x = healthX
         this.healthBar.y = healthY
+        this.healthBar.width = width * (this.health / this.maxHealth)
+        this.healthBar.height = height / 10
+
+
         this.healthBarBackground.x = healthX
         this.healthBarBackground.y = healthY
-        this.healthBar.width = this.health * this.scale
+        this.healthBarBackground.width = width
+        this.healthBarBackground.height = height / 10
     }
 
     removeHealth(health) {

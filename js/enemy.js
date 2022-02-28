@@ -64,7 +64,7 @@ class Enemy {
     update(char) {
         if (this.sprite.active) {
             const speed = this.speed + Math.random() * 20
-            const tol = 0
+            const tol = 5
             if (this.sprite.x + tol < char.x) {
                 // Go right
                 this.sprite.setVelocityX(speed)
@@ -102,12 +102,12 @@ class Enemy {
 
 export class Orc extends Enemy {
     constructor(char, enemyGroup, game) {
-        super('orc', 'orc-walk', 50, 3, char, enemyGroup, game, 1);
+        super('orc', 'orc-walk', 10, 1, char, enemyGroup, game, 1);
     }
 }
 
 export class Ogre extends Enemy {
     constructor(char, enemyGroup, game) {
-        super('ogre', 'ogre-walk', 50, 7, char, enemyGroup, game, 10);
+        super('ogre', 'ogre-walk', 20, 2, char, enemyGroup, game, 10);
     }
 }

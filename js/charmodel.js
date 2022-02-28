@@ -1,15 +1,14 @@
-export { CharModel }
+import { HealthBar } from "./healthbar.js"
 
 const CAMERA_LERP = .15
-const MOVE_SPEED = 250
-const HEALTH_BAR_SIZE = 50
+const MOVE_SPEED = 50
+const HEALTH = 50
 
 
-class CharModel {
+export class CharModel {
     constructor(game) {
         this.game = game
-        this.health = HEALTH_BAR_SIZE
-        this.cooldown = false
+        this.health = 50
     }
 
     preload() {
@@ -30,12 +29,11 @@ class CharModel {
         // Create main sprite
         this.sprite = this.game.physics.add.sprite(0, 0, 'wizard')
         this.sprite.smoothed = false
-        this.sprite.setScale(4)
 
         this.game.cameras.main.startFollow(this.sprite, true, CAMERA_LERP, CAMERA_LERP)
 
         // Create health bar
-        this.healthBar = this.game.add.rectangle(0, 0, HEALTH_BAR_SIZE, HEALTH_BAR_SIZE / 10, 0xA3255A)
+        this.healthBar = new HealthBar(this.game, HEALTH)
         this.endGameCallBack = endGameCallBack
     }
 
@@ -62,23 +60,13 @@ class CharModel {
             this.sprite.setVelocityY(0)
         }
 
-        this.healthBar.x = this.sprite.x
-        this.healthBar.y = this.sprite.y + this.sprite.displayHeight / 2 + 10
-        this.healthBar.width = this.health
+        this.healthBar.update(this.sprite)
     }
 
     removeHealth(minusHealth) {
-        if (!this.cooldown) {
-            this.cooldown = true
-            this.health = Math.max(this.health - minusHealth, 0);
-            this.game.time.addEvent({
-                delay: 100,
-                callback: _ => this.cooldown = false,
-                callbackScope: this,
-            })
-        }
+        this.healthBar.removeHealth(minusHealth)
 
-        if (this.health == 0) {
+        if (this.healthBar.health == 0) {
             this.sprite.destroy()
             this.endGameCallBack()
         }

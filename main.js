@@ -3,9 +3,6 @@ import { CharModel } from './js/charmodel.js'
 import { BackgroundModel } from './js/backgroundmodel.js'
 import { AbilityModel } from './js/abilitymodel.js'
 
-const WIDTH = 1000
-const HEIGHT = 1000
-
 const GameState = {
     SETUP: 'SETUP',
     RUNNING: 'RUNNING',
@@ -75,7 +72,7 @@ class MainScene extends Phaser.Scene {
             deadText.setScrollFactor(0)
             const thumb = this.physics.add.image(500, 500, 'thumb')
             thumb.setScrollFactor(0)
-            thumb.setScale(5)
+            thumb.setScale(1)
             return
         }
 
@@ -102,9 +99,17 @@ const game = new Phaser.Game({
     },
     scene: [MainScene],
     scale: {
-        width: WIDTH,
-        height: HEIGHT,
         parent: 'game',
+        mode: Phaser.Scale.FIT,
+        //autoCenter: Phaser.Scale.CENTER_BOTH,
+        zoom: Phaser.Scale.MAX_ZOOM,
+        width: 500,
+        height: 250,
     },
     pixelArt: true,
 })
+
+
+window.resize = event => {
+    game.scale.setMaxZoom();
+};

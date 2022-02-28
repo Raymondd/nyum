@@ -1,6 +1,6 @@
 export { AbilityModel }
 
-const ABILITY_SPEED = 500
+const ABILITY_SPEED = 200
 
 class AbilityModel {
     constructor(game) {
@@ -33,7 +33,7 @@ class AbilityModel {
     spawner() {
         var ability = this.game.physics.add.image(this.charModel.sprite.x, this.charModel.sprite.y, 'ball')
         this.group.add(ability)
-        ability.setScale(.02)
+        ability.setScale(.01)
         ability.setVelocity(this.abilitySpeedX, this.abilitySpeedY)
 
         this.abilityList.push(ability)

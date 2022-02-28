@@ -1,13 +1,11 @@
 #game {
-    display: flex;
-    width: 100vw;
-    height: 100vh;
-}
-
-canvas {
-    margin: auto;
+    height: 100%;
 }
 
 body {
-    background-color: rgb(45, 112, 56);
+    margin: 0;
+    padding: 0;
+    background: #111;
+    color: #eee;
+    font: caption;
 }
